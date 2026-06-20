@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>043 &bull; Chore Quest</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sky:#E8F4FD;--white:#FFFFFF;--ink:#37474F;
+  --blue:#2979FF;--yellow:#FFD600;--green:#00C853;
+  --red:#FF1744;--purple:#AA00FF;--orange:#FF6D00;
+  --border:#B0BEC5;--shadow:0 4px 14px rgba(0,0,0,0.12);
+}
+body{min-height:100dvh;background:var(--sky);font-family:"Nunito",sans-serif;color:var(--ink);display:flex;flex-direction:column}
+.site-header{background:var(--blue);color:#fff;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.site-header .brand{font-family:"Fredoka One",cursive;font-size:0.75rem;opacity:0.7}
+.site-header .app-title{font-family:"Fredoka One",cursive;font-size:1.15rem}
+.site-header .back-link{font-family:"Fredoka One",cursive;font-size:0.7rem;color:var(--yellow);text-decoration:none}
+.parent-bar{background:#1A237E;color:#fff;display:flex;align-items:center;justify-content:space-between;padding:7px 16px;font-size:0.85rem;font-weight:700;flex-shrink:0}
+.parent-badge{background:var(--yellow);color:var(--ink);border-radius:99px;padding:2px 10px;font-family:"Fredoka One",cursive;font-size:0.78rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;border:none;border-radius:12px;font-family:"Nunito",sans-serif;font-weight:800;cursor:pointer;padding:8px 16px;font-size:0.9rem;transition:transform 0.1s}
+.btn:active{transform:scale(0.94)}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-yellow{background:var(--yellow);color:var(--ink)}
+.btn-green{background:var(--green);color:#fff}
+.btn-red{background:var(--red);color:#fff}
+.btn-ghost{background:transparent;color:var(--ink);border:2px solid var(--border)}
+.btn-sm{padding:5px 11px;font-size:0.8rem;border-radius:9px}
+nav.view-tabs{display:flex;background:var(--white);border-bottom:2px solid var(--border);flex-shrink:0}
+.view-tab{flex:1;padding:10px 4px;font-family:"Fredoka One",cursive;font-size:0.95rem;color:var(--ink);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;opacity:0.5;transition:all 0.15s}
+.view-tab.active{opacity:1;border-bottom-color:var(--blue)}
+main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.view{flex:1;overflow-y:auto;display:none;padding:0 0 80px}
+.view.active{display:flex;flex-direction:column}
+.kids-tabs{display:flex;gap:6px;padding:10px 14px 4px;overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.kids-tabs::-webkit-scrollbar{display:none}
+.kid-tab{flex-shrink:0;padding:6px 14px;border-radius:99px;border:2.5px solid var(--border);background:var(--white);font-family:"Fredoka One",cursive;font-size:0.95rem;cursor:pointer;transition:all 0.15s;color:var(--ink)}
+.kid-tab-add{width:36px;padding:0;border-style:dashed;color:var(--border);font-size:1.2rem;display:flex;align-items:center;justify-content:center}
+.kid-panel{display:none;padding:10px 14px 0;flex-direction:column;gap:10px}
+.kid-panel.visible{display:flex}
+.xp-card{background:var(--white);border-radius:18px;padding:14px 16px;box-shadow:var(--shadow)}
+.xp-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.xp-name{font-family:"Fredoka One",cursive;font-size:1.35rem}
+.xp-level{font-family:"Fredoka One",cursive;font-size:0.9rem;padding:2px 12px;border-radius:99px;color:#fff}
+.xp-track{background:#E3F2FD;border-radius:99px;height:20px;overflow:hidden}
+.xp-fill{height:100%;border-radius:99px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+.xp-sub{font-size:0.78rem;color:#607D8B;margin-top:4px;text-align:right;font-weight:700}
+.chores-hdr{display:flex;align-items:center;justify-content:space-between}
+.chores-hdr h3{font-family:"Fredoka One",cursive;font-size:1rem;color:#607D8B}
+.chore-grid{display:flex;flex-direction:column;gap:8px}
+.chore-card{background:var(--white);border-radius:14px;padding:11px 13px;display:flex;align-items:center;gap:11px;box-shadow:var(--shadow);transition:opacity 0.2s}
+.chore-card.done{opacity:0.45}
+.chore-check{width:36px;height:36px;flex-shrink:0;border-radius:50%;border:2.5px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.2rem;transition:all 0.15s;user-select:none}
+.chore-check:active{transform:scale(0.88)}
+.chore-check.checked{background:var(--green);border-color:var(--green);color:#fff}
+.chore-info{flex:1;min-width:0}
+.chore-name{font-weight:800;font-size:0.93rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chore-xp{font-family:"Fredoka One",cursive;font-size:0.8rem;color:var(--orange);margin-top:1px}
+.chore-del{background:none;border:none;color:#CFD8DC;font-size:1.05rem;cursor:pointer;padding:4px;line-height:1}
+.chore-del:hover{color:var(--red)}
+.lb-wrap{padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.lb-card{background:var(--white);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow)}
+.lb-rank{font-family:"Fredoka One",cursive;font-size:1.8rem;width:36px;text-align:center;flex-shrink:0}
+.lb-info{flex:1}
+.lb-name{font-family:"Fredoka One",cursive;font-size:1.2rem}
+.lb-track{background:#E3F2FD;border-radius:99px;height:12px;overflow:hidden;margin-top:5px}
+.lb-fill{height:100%;border-radius:99px;transition:width 0.6s ease}
+.lb-stats{font-size:0.78rem;color:#607D8B;font-weight:700;margin-top:4px}
+.lb-xp{font-family:"Fredoka One",cursive;font-size:1.1rem;color:var(--orange);text-align:right;flex-shrink:0}
+.empty{text-align:center;padding:30px 16px;color:#90A4AE}
+.empty-icon{font-size:2.8rem;margin-bottom:8px}
+.empty p{font-weight:700;font-size:0.9rem}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:none;z-index:100;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:380px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,0.2)}
+.modal h2{font-family:"Fredoka One",cursive;font-size:1.35rem;color:var(--blue);margin-bottom:14px}
+.modal label{display:block;font-weight:800;font-size:0.82rem;color:#607D8B;margin-bottom:3px;margin-top:11px;text-transform:uppercase;letter-spacing:0.04em}
+.modal input,.modal select{width:100%;padding:9px 12px;border:2px solid var(--border);border-radius:10px;font-family:"Nunito",sans-serif;font-size:1rem;color:var(--ink)}
+.modal-close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.5rem;cursor:pointer;color:#90A4AE;line-height:1}
+.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+.pin-err{color:var(--red);font-size:0.8rem;margin-top:5px;display:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 0;flex-shrink:0}
+.topbar h2{font-family:"Fredoka One",cursive;font-size:1.4rem;color:var(--blue)}
+#celebrate{position:fixed;inset:0;pointer-events:none;z-index:200;overflow:hidden}
+.coin{position:absolute;animation:fall 1.2s ease-in forwards}
+@keyframes fall{0%{transform:translateY(-10px) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(540deg);opacity:0}}
+#lvl-banner{position:fixed;top:0;left:0;right:0;font-family:"Fredoka One",cursive;font-size:1.25rem;text-align:center;padding:14px 16px;z-index:201;transform:translateY(-110%);transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);color:#fff}
+#lvl-banner.show{transform:translateY(0)}
+footer{background:#1A237E;color:#fff;text-align:center;padding:9px;font-size:0.72rem;opacity:0.7;flex-shrink:0}
+footer a{color:var(--yellow);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <span class="brand">AppADay &bull; 043</span>
+  <span class="app-title">&#x2694;&#xFE0F; Chore Quest</span>
+  <a href="https://augustineiacopelli.github.io/appaday/" class="back-link">&#8592; Portfolio</a>
+</header>
+
+<div id="parent-bar" class="parent-bar" style="display:none">
+  <span>&#x1F512; Parent Mode <span class="parent-badge">ON</span></span>
+  <button class="btn btn-sm btn-ghost" id="lock-btn" style="color:#fff;border-color:rgba(255,255,255,0.4)">Lock</button>
+</div>
+
+<nav class="view-tabs">
+  <button class="view-tab active" data-view="quests">&#x2694;&#xFE0F; Quests</button>
+  <button class="view-tab" data-view="leaderboard">&#x1F3C6; Scoreboard</button>
+</nav>
+
+<main>
+  <div class="view active" id="view-quests">
+    <div class="topbar">
+      <h2>Today&#x2019;s Quests</h2>
+      <button class="btn btn-sm btn-ghost" id="parent-btn">&#x1F512; Parent</button>
+    </div>
+    <div class="kids-tabs" id="kids-tabs"></div>
+    <div id="kid-panels"></div>
+    <div id="no-kids" style="display:none;padding:32px 20px;text-align:center;flex-direction:column;align-items:center;gap:12px">
+      <div style="font-size:3.5rem">&#x1F3AE;</div>
+      <div style="font-family:'Fredoka One',cursive;font-size:1.5rem;color:var(--blue)">Welcome to Chore Quest!</div>
+      <div style="font-size:0.9rem;color:#607D8B;font-weight:600;max-width:260px;line-height:1.5;margin:0 auto">Parents: add your kids and assign quests. Kids earn XP and level up by completing chores!</div>
+      <button class="btn btn-blue" id="setup-btn" style="margin-top:8px;font-size:1rem;padding:12px 28px">&#x2795; Set Up Quests</button>
+      <div style="font-size:0.78rem;color:#90A4AE;margin-top:4px">Default parent PIN is <strong>1234</strong></div>
+    </div>
+  </div>
+
+  <div class="view" id="view-leaderboard">
+    <div class="topbar"><h2>&#x1F3C6; Scoreboard</h2></div>
+    <div class="lb-wrap" id="lb-wrap"></div>
+  </div>
+</main>
+
+<div id="celebrate"></div>
+<div id="lvl-banner"></div>
+
+<!-- PIN -->
+<div class="overlay" id="pin-overlay">
+  <div class="modal">
+    <button class="modal-close" id="pin-close">&times;</button>
+    <h2>&#x1F512; Parent Mode</h2>
+    <p style="font-size:0.85rem;color:#607D8B">Default PIN is <strong>1234</strong>.</p>
+    <label>PIN</label>
+    <input type="password" inputmode="numeric" maxlength="4" id="pin-input" placeholder="4-digit PIN">
+    <div class="pin-err" id="pin-err">Wrong PIN. Try again.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="pin-cancel">Cancel</button>
+      <button class="btn btn-blue" id="pin-confirm">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD KID -->
+<div class="overlay" id="addkid-overlay">
+  <div class="modal">
+    <button class="modal-close" id="addkid-close">&times;</button>
+    <h2>&#x2795; New Adventurer</h2>
+    <label>Name</label>
+    <input type="text" id="kid-name" placeholder="e.g. Picco" maxlength="20">
+    <label>Avatar</label>
+    <select id="kid-avatar">
+      <option value="&#x1F9D2;">&#x1F9D2; Kid</option>
+      <option value="&#x1F9D9;">&#x1F9D9; Wizard</option>
+      <option value="&#x1F9DA;">&#x1F9DA; Fairy</option>
+      <option value="&#x1F9DB;">&#x1F9DB; Vampire</option>
+      <option value="&#x1F9DC;">&#x1F9DC; Mermaid</option>
+      <option value="&#x1F9DD;">&#x1F9DD; Elf</option>
+      <option value="&#x1F478;">&#x1F478; Princess</option>
+      <option value="&#x1F934;">&#x1F934; Prince</option>
+      <option value="&#x1F9B8;">&#x1F9B8; Hero</option>
+      <option value="&#x1F409;">&#x1F409; Dragon</option>
+      <option value="&#x1F984;">&#x1F984; Unicorn</option>
+      <option value="&#x1F9B9;">&#x1F9B9; Villain</option>
+    </select>
+    <label>Color</label>
+    <select id="kid-color">
+      <option value="#2979FF">Blue</option>
+      <option value="#00C853">Green</option>
+      <option value="#FF6D00">Orange</option>
+      <option value="#AA00FF">Purple</option>
+      <option value="#F50057">Pink</option>
+      <option value="#FF1744">Red</option>
+    </select>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="addkid-cancel">Cancel</button>
+      <button class="btn btn-green" id="addkid-confirm">Add!</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD CHORE -->
+<div class="overlay" id="addchore-overlay">
+  <div class="modal">
+    <button class="modal-close" id="addchore-close">&times;</button>
+    <h2>&#x2694;&#xFE0F; New Quest</h2>
+    <label>Chore Name</label>
+    <input type="text" id="chore-name" placeholder="e.g. Make your bed" maxlength="40">
+    <label>XP Reward</label>
+    <select id="chore-xp">
+      <option value="5">5 XP &mdash; Quick (2 min)</option>
+      <option value="10" selected>10 XP &mdash; Easy (5 min)</option>
+      <option value="20">20 XP &mdash; Medium (15 min)</option>
+      <option value="30">30 XP &mdash; Hard (30 min)</option>
+      <option value="50">50 XP &mdash; Epic (1 hr+)</option>
+    </select>
+    <label>Frequency</label>
+    <select id="chore-freq">
+      <option value="daily">&#x1F504; Daily &mdash; resets every morning</option>
+      <option value="weekly">&#x1F4C5; Weekly &mdash; resets once a week</option>
+      <option value="once">&#x2605; One-Time &mdash; never resets</option>
+    </select>
+    <div id="chore-weekday-row" style="display:none;margin-top:8px">
+      <label>Resets On</label>
+      <select id="chore-weekday">
+        <option value="0">Sunday</option>
+        <option value="1">Monday</option>
+        <option value="2">Tuesday</option>
+        <option value="3">Wednesday</option>
+        <option value="4">Thursday</option>
+        <option value="5">Friday</option>
+        <option value="6">Saturday</option>
+      </select>
+    </div>
+    <label>Assign To</label>
+    <select id="chore-kid"></select>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:8px">
+      <input type="checkbox" id="chore-all" style="width:auto">
+      <label for="chore-all" style="margin:0;display:inline;font-size:0.85rem;text-transform:none;letter-spacing:0;color:var(--ink)">Assign to ALL adventurers</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="addchore-cancel">Cancel</button>
+      <button class="btn btn-yellow" id="addchore-confirm">Add Quest!</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET -->
+<div class="overlay" id="reset-overlay">
+  <div class="modal">
+    <h2>&#x1F504; New Day?</h2>
+    <p style="font-size:0.88rem;color:#607D8B;margin-top:4px">Unchecks all of today&#x2019;s quests. XP already earned is kept forever.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="reset-cancel">Cancel</button>
+      <button class="btn btn-red" id="reset-confirm">New Day!</button>
+    </div>
+  </div>
+</div>
+
+<footer><a href="https://augustineiacopelli.github.io/appaday/">AppADay by Augustine Iacopelli</a></footer>
+
+<script>
+(function(){
+"use strict";
+var XP_PER_LEVEL = 100;
+function load(){
+  try{ var s=localStorage.getItem("chorequest2"); if(s) return JSON.parse(s); }catch(e){}
+  return {pin:"1234",kids:[],chores:[]};
+}
+function save(s){ try{localStorage.setItem("chorequest2",JSON.stringify(s));}catch(e){} }
+var S=load(), kidIdx=0, parentOn=false, resetKidId=null;
+
+// Auto-reset chores based on frequency
+(function autoReset(){
+  var today = new Date();
+  var todayStr = today.getFullYear()+"-"+(today.getMonth()+1)+"-"+today.getDate();
+  var todayDow = today.getDay(); // 0=Sun
+  var last = S.lastChecked || "";
+  if(last !== todayStr){
+    S.chores.forEach(function(c){
+      var freq = c.freq || "daily";
+      if(freq === "daily"){
+        c.done = false;
+      } else if(freq === "weekly"){
+        // reset if today matches their chosen reset day and we haven't reset this week yet
+        if(c.resetDay === todayDow && last !== todayStr){
+          c.done = false;
+        }
+      }
+      // "once" chores never auto-reset
+    });
+    S.lastChecked = todayStr;
+    save(S);
+  }
+})();
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function esc(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function kidLevel(k){ return Math.floor(k.totalXp/XP_PER_LEVEL)+1; }
+function kidXpIn(k){ return k.totalXp%XP_PER_LEVEL; }
+
+function render(){ renderParentBar(); renderTabs(); renderPanels(); renderLeaderboard(); }
+
+function renderParentBar(){
+  document.getElementById("parent-bar").style.display=parentOn?"flex":"none";
+}
+
+function renderTabs(){
+  var c=document.getElementById("kids-tabs");
+  c.innerHTML="";
+  if(!S.kids.length){ document.getElementById("no-kids").style.display="flex"; return; }
+  document.getElementById("no-kids").style.display="none";
+  if(kidIdx>=S.kids.length) kidIdx=0;
+  S.kids.forEach(function(kid,i){
+    var btn=document.createElement("button");
+    btn.className="kid-tab"+(i===kidIdx?" active":"");
+    if(i===kidIdx){ btn.style.background=kid.color; btn.style.borderColor=kid.color; btn.style.color="#fff"; }
+    btn.textContent=kid.avatar+" "+kid.name;
+    btn.setAttribute("data-i",i);
+    btn.addEventListener("click",function(){ kidIdx=parseInt(this.getAttribute("data-i")); render(); });
+    c.appendChild(btn);
+  });
+  if(parentOn){
+    var add=document.createElement("button");
+    add.className="kid-tab kid-tab-add"; add.textContent="+"; add.title="Add adventurer";
+    add.addEventListener("click",openAddKid);
+    c.appendChild(add);
+  }
+}
+
+function renderPanels(){
+  var c=document.getElementById("kid-panels");
+  c.innerHTML="";
+  if(!S.kids.length) return;
+  S.kids.forEach(function(kid,ki){
+    var panel=document.createElement("div");
+    panel.className="kid-panel"+(ki===kidIdx?" visible":"");
+    var level=kidLevel(kid), xpIn=kidXpIn(kid), pct=Math.min(100,(xpIn/XP_PER_LEVEL)*100);
+    var myChores=S.chores.filter(function(ch){ return ch.kidId===kid.id; });
+    var done=myChores.filter(function(ch){ return ch.done; }).length;
+
+    var xpCard=document.createElement("div");
+    xpCard.className="xp-card";
+    xpCard.innerHTML=
+      '<div class="xp-row">'+
+        '<span class="xp-name">'+kid.avatar+" "+esc(kid.name)+'</span>'+
+        '<span class="xp-level" style="background:'+kid.color+'">Lv '+level+'</span>'+
+      '</div>'+
+      '<div class="xp-track"><div class="xp-fill" style="width:'+pct+'%;background:'+kid.color+'"></div></div>'+
+      '<div class="xp-sub">'+xpIn+' / '+XP_PER_LEVEL+' XP &bull; Total: '+kid.totalXp+' XP</div>';
+    panel.appendChild(xpCard);
+
+    var choreHdr=document.createElement("div");
+    choreHdr.className="chores-hdr";
+    choreHdr.innerHTML='<h3>Quests ('+done+'/'+myChores.length+')</h3>';
+    if(parentOn){
+      var addBtn=document.createElement("button");
+      addBtn.className="btn btn-sm btn-yellow"; addBtn.textContent="+ Quest";
+      addBtn.setAttribute("data-kid",kid.id);
+      addBtn.addEventListener("click",function(){ openAddChore(this.getAttribute("data-kid")); });
+      choreHdr.appendChild(addBtn);
+    }
+    panel.appendChild(choreHdr);
+
+    var grid=document.createElement("div"); grid.className="chore-grid";
+    if(!myChores.length){
+      if(parentOn){
+        grid.innerHTML='<div style="background:#FFF9C4;border:2px dashed #FFD600;border-radius:14px;padding:20px;text-align:center">'+
+          '<div style="font-size:2rem;margin-bottom:6px">&#x1F4DC;</div>'+
+          '<div style="font-family:Fredoka One,cursive;color:var(--blue);font-size:1rem">No quests assigned yet</div>'+
+          '<div style="font-size:0.82rem;color:#607D8B;margin:4px 0 12px;font-weight:600">Tap the yellow button above to add a quest!</div>'+
+          '</div>';
+      } else {
+        grid.innerHTML='<div class="empty" style="padding:16px 0"><div class="empty-icon">&#x1F4DC;</div><p>No quests assigned yet</p></div>';
+      }
+    } else {
+      myChores.forEach(function(chore){
+        var card=document.createElement("div");
+        card.className="chore-card"+(chore.done?" done":"");
+        var chk=document.createElement("div");
+        chk.className="chore-check"+(chore.done?" checked":"");
+        chk.innerHTML=chore.done?"&#x2713;":"";
+        chk.setAttribute("data-kid",kid.id); chk.setAttribute("data-chore",chore.id);
+        chk.addEventListener("click",function(){ toggleChore(this.getAttribute("data-kid"),this.getAttribute("data-chore")); });
+        var info=document.createElement("div"); info.className="chore-info";
+        var freqLabel={"daily":"&#x1F504; Daily","weekly":"&#x1F4C5; Weekly","once":"&#x2605; One-Time"};
+        var freqTag=freqLabel[chore.freq||"daily"]||"&#x1F504; Daily";
+        var days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+        var freqDetail=(chore.freq==="weekly"&&chore.resetDay>=0)?" &bull; resets "+days[chore.resetDay]:"";
+        info.innerHTML='<div class="chore-name">'+esc(chore.name)+'</div>'+
+          '<div class="chore-xp">+'+chore.xp+' XP <span style="opacity:0.65;font-size:0.75rem;font-family:Nunito">'+freqTag+freqDetail+'</span></div>';
+        card.appendChild(chk); card.appendChild(info);
+        if(parentOn){
+          var del=document.createElement("button"); del.className="chore-del"; del.innerHTML="&#x1F5D1;";
+          del.setAttribute("data-chore",chore.id);
+          del.addEventListener("click",function(){ deleteChore(this.getAttribute("data-chore")); });
+          card.appendChild(del);
+        }
+        grid.appendChild(card);
+      });
+    }
+    panel.appendChild(grid);
+
+    if(parentOn&&myChores.length){
+      var rBtn=document.createElement("button");
+      rBtn.className="btn btn-sm btn-ghost"; rBtn.style.marginTop="8px"; rBtn.innerHTML="&#x1F504; New Day";
+      rBtn.setAttribute("data-kid",kid.id);
+      rBtn.addEventListener("click",function(){ resetKidId=this.getAttribute("data-kid"); openModal("reset-overlay"); });
+      panel.appendChild(rBtn);
+    }
+    c.appendChild(panel);
+  });
+}
+
+function renderLeaderboard(){
+  var c=document.getElementById("lb-wrap"); c.innerHTML="";
+  if(!S.kids.length){ c.innerHTML='<div class="empty"><div class="empty-icon">&#x1F3C6;</div><p>Add adventurers to see the scoreboard!</p></div>'; return; }
+  var sorted=S.kids.slice().sort(function(a,b){ return b.totalXp-a.totalXp; });
+  var maxXp=Math.max(sorted[0].totalXp,1);
+  var medals=["&#x1F947;","&#x1F948;","&#x1F949;"];
+  sorted.forEach(function(kid,i){
+    var level=kidLevel(kid);
+    var todayXp=S.chores.filter(function(ch){ return ch.kidId===kid.id&&ch.done; }).reduce(function(s,ch){ return s+ch.xp; },0);
+    var card=document.createElement("div"); card.className="lb-card";
+    if(i===0&&kid.totalXp>0) card.style.border="2.5px solid #FFD600";
+    var rankStr=i<3?medals[i]:"#"+(i+1);
+    card.innerHTML=
+      '<div class="lb-rank">'+rankStr+'</div>'+
+      '<div class="lb-info">'+
+        '<div class="lb-name">'+kid.avatar+" "+esc(kid.name)+'</div>'+
+        '<div class="lb-track"><div class="lb-fill" style="width:'+Math.round((kid.totalXp/maxXp)*100)+'%;background:'+kid.color+'"></div></div>'+
+        '<div class="lb-stats">Lv '+level+' &bull; Today: +'+todayXp+' XP</div>'+
+      '</div>'+
+      '<div class="lb-xp">'+kid.totalXp+'<br><span style="font-size:0.7rem;font-family:Nunito;font-weight:700">XP</span></div>';
+    c.appendChild(card);
+  });
+}
+
+function toggleChore(kidId,choreId){
+  var kid=S.kids.find(function(k){ return k.id===kidId; });
+  var chore=S.chores.find(function(c){ return c.id===choreId&&c.kidId===kidId; });
+  if(!kid||!chore) return;
+  var wasLevel=kidLevel(kid);
+  if(!chore.done){ chore.done=true; kid.totalXp+=chore.xp; save(S); burst(); if(kidLevel(kid)>wasLevel) showLevelUp(kid,kidLevel(kid)); }
+  else { chore.done=false; kid.totalXp=Math.max(0,kid.totalXp-chore.xp); save(S); }
+  render();
+}
+function deleteChore(id){ S.chores=S.chores.filter(function(c){ return c.id!==id; }); save(S); render(); }
+
+function burst(){
+  var el=document.getElementById("celebrate"); el.innerHTML="";
+  var emojis=["&#x2B50;","&#x1F31F;","&#x1F4B0;","&#x2728;","&#x1F389;","&#x1FA99;"];
+  for(var i=0;i<20;i++){
+    var s=document.createElement("span"); s.className="coin";
+    s.innerHTML=emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.left=(Math.random()*88+4)+"%"; s.style.top="-30px";
+    s.style.fontSize=(1.1+Math.random()*0.9)+"rem";
+    s.style.animationDelay=(Math.random()*0.4)+"s";
+    s.style.animationDuration=(0.9+Math.random()*0.5)+"s";
+    el.appendChild(s);
+  }
+  setTimeout(function(){ el.innerHTML=""; },1800);
+}
+function showLevelUp(kid,level){
+  var b=document.getElementById("lvl-banner");
+  b.innerHTML="&#x1F389; "+esc(kid.name)+" reached Level "+level+"! &#x1F389;";
+  b.style.background=kid.color; b.classList.add("show");
+  setTimeout(function(){ b.classList.remove("show"); },2600);
+}
+
+function openModal(id){ document.getElementById(id).classList.add("open"); }
+function closeModal(id){ document.getElementById(id).classList.remove("open"); }
+
+function openAddKid(){
+  document.getElementById("kid-name").value="";
+  openModal("addkid-overlay");
+  setTimeout(function(){ document.getElementById("kid-name").focus(); },80);
+}
+function openAddChore(kidId){
+  document.getElementById("chore-name").value="";
+  document.getElementById("chore-xp").value="10";
+  document.getElementById("chore-all").checked=false;
+  var sel=document.getElementById("chore-kid"); sel.innerHTML="";
+  S.kids.forEach(function(k){
+    var o=document.createElement("option"); o.value=k.id; o.textContent=k.avatar+" "+k.name;
+    if(k.id===kidId) o.selected=true;
+    sel.appendChild(o);
+  });
+  document.getElementById("chore-weekday-row").style.display="none";
+  document.getElementById("chore-freq").value="daily";
+  openModal("addchore-overlay");
+  setTimeout(function(){ document.getElementById("chore-name").focus(); },80);
+}
+
+document.getElementById("parent-btn").addEventListener("click",function(){
+  if(parentOn){ parentOn=false; render(); return; }
+  document.getElementById("pin-input").value=""; document.getElementById("pin-err").style.display="none";
+  openModal("pin-overlay"); setTimeout(function(){ document.getElementById("pin-input").focus(); },80);
+});
+
+// Setup button on first-run empty state — no PIN needed if no kids exist yet
+document.addEventListener("click",function(e){
+  if(e.target && e.target.id==="setup-btn"){
+    if(!S.kids.length){
+      parentOn=true; render(); openAddKid();
+    } else {
+      document.getElementById("pin-input").value=""; document.getElementById("pin-err").style.display="none";
+      openModal("pin-overlay"); setTimeout(function(){ document.getElementById("pin-input").focus(); },80);
+    }
+  }
+});
+document.getElementById("lock-btn").addEventListener("click",function(){ parentOn=false; render(); });
+document.getElementById("pin-close").addEventListener("click",function(){ closeModal("pin-overlay"); });
+document.getElementById("pin-cancel").addEventListener("click",function(){ closeModal("pin-overlay"); });
+document.getElementById("pin-confirm").addEventListener("click",function(){
+  if(document.getElementById("pin-input").value===S.pin){ parentOn=true; closeModal("pin-overlay"); render(); }
+  else { document.getElementById("pin-err").style.display="block"; document.getElementById("pin-input").value=""; document.getElementById("pin-input").focus(); }
+});
+document.getElementById("pin-input").addEventListener("keydown",function(e){ if(e.key==="Enter") document.getElementById("pin-confirm").click(); });
+document.getElementById("addkid-close").addEventListener("click",function(){ closeModal("addkid-overlay"); });
+document.getElementById("addkid-cancel").addEventListener("click",function(){ closeModal("addkid-overlay"); });
+document.getElementById("addkid-confirm").addEventListener("click",function(){
+  var name=document.getElementById("kid-name").value.trim(); if(!name) return;
+  S.kids.push({id:uid(),name:name,avatar:document.getElementById("kid-avatar").value,color:document.getElementById("kid-color").value,totalXp:0});
+  var newKidId=S.kids[S.kids.length-1].id;
+  kidIdx=S.kids.length-1; save(S); closeModal("addkid-overlay"); render();
+  // Prompt to add first quest right away
+  setTimeout(function(){ openAddChore(newKidId); },200);
+});
+document.getElementById("addchore-close").addEventListener("click",function(){ closeModal("addchore-overlay"); });
+document.getElementById("addchore-cancel").addEventListener("click",function(){ closeModal("addchore-overlay"); });
+document.getElementById("addchore-confirm").addEventListener("click",function(){
+  var name=document.getElementById("chore-name").value.trim(); if(!name) return;
+  var xp=parseInt(document.getElementById("chore-xp").value);
+  var all=document.getElementById("chore-all").checked;
+  var targets=all?S.kids.map(function(k){ return k.id; }):[document.getElementById("chore-kid").value];
+  var freq=document.getElementById("chore-freq").value;
+  var resetDay=freq==="weekly"?parseInt(document.getElementById("chore-weekday").value):-1;
+  targets.forEach(function(kid){ S.chores.push({id:uid(),kidId:kid,name:name,xp:xp,done:false,freq:freq,resetDay:resetDay}); });
+  save(S); closeModal("addchore-overlay"); render();
+});
+document.getElementById("reset-cancel").addEventListener("click",function(){ closeModal("reset-overlay"); resetKidId=null; });
+document.getElementById("reset-confirm").addEventListener("click",function(){
+  if(resetKidId) S.chores.forEach(function(c){ if(c.kidId===resetKidId) c.done=false; });
+  save(S); closeModal("reset-overlay"); resetKidId=null; render();
+});
+
+document.querySelectorAll(".view-tab").forEach(function(tab){
+  tab.addEventListener("click",function(){
+    var v=this.getAttribute("data-view");
+    document.querySelectorAll(".view-tab").forEach(function(t){ t.classList.remove("active"); });
+    document.querySelectorAll(".view").forEach(function(el){ el.classList.remove("active"); });
+    this.classList.add("active");
+    document.getElementById("view-"+v).classList.add("active");
+    if(v==="leaderboard") renderLeaderboard();
+  });
+});
+["pin-overlay","addkid-overlay","addchore-overlay","reset-overlay"].forEach(function(id){
+  document.getElementById(id).addEventListener("click",function(e){ if(e.target===this) closeModal(id); });
+});
+
+document.getElementById("chore-freq").addEventListener("change",function(){
+  document.getElementById("chore-weekday-row").style.display = this.value==="weekly" ? "block" : "none";
+});
+
+render();
+})();
+</script>
+</body>
+</html>
